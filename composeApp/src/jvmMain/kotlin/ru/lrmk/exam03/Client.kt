@@ -28,5 +28,29 @@ class Client {
     }
 
     // Ваши клиентские функции доступа к API будут находиться здесь:
+    suspend fun users(): List<User> =
+        client.get("users").body()
 
+    suspend fun login(login: String, password: String) =
+        client.post("login") {
+            parameter("login", login)
+            parameter("password", password)
+        }
+
+    suspend fun insert(login: String, password: String) =
+        client.put("insert") {
+            parameter("login", login)
+            parameter("password", password)
+        }
+
+    suspend fun update(user: User) =
+        client.patch("update") {
+            contentType(ContentType.Application.Json)
+            setBody(user)
+        }
+
+    suspend fun delete(login: String) =
+        client.delete("delete") {
+            parameter("login", login)
+        }
 }

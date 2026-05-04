@@ -2,6 +2,49 @@
 -- При каждом изменении структуры таблицы рекомендуется удалять файл data.s3db (выделен красным в папке проекта).
 
 CREATE TABLE user(
-    dummy TEXT
+    login TEXT NOT NULL PRIMARY KEY,
+    password TEXT NOT NULL,
+    last TEXT NOT NULL,
+    token TEXT,
+    admin INTEGER NOT NULL,
+    count INTEGER NOT NULL
 );
 
+INSERT INTO user VALUES ("admin", "admin", date(), NULL, 1, 0);
+INSERT INTO user VALUES ("user", "user", date(), NULL, 0, 0);
+
+getUserByLogin:
+SELECT * FROM user WHERE login=:login;
+
+login {
+SELECT * FROM user
+    WHERE login = :login AND password = :password;
+}
+
+successLogin:
+UPDATE user SET token = :token, count = 0, last = date()
+    WHERE login = :login;
+
+
+count:
+UPDATE user SET count = count + 1
+    WHERE login=:login;
+
+block:
+UPDATE user SET last=date('now', '-2 month')
+    WHERE login=:login;
+
+insert:
+INSERT INTO user(login, password, last, token, admin, count)
+    VALUES(:login, :password, date('now'), NULL, 0, 0);
+
+update:
+UPDATE user
+    SET login = ?, password = ?, admin = ?, count = 0, last = date('now')
+        WHERE login = ?;
+
+delete:
+DELETE FROM user WHERE login=:login;
+
+select:
+SELECT * FROM user;
