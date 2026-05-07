@@ -42,9 +42,10 @@ class Client {
             parameter("login", login)
         }
 
-    suspend fun update(user: User) =
+    suspend fun update(user: User, oldLogin: String) =
         client.patch("update") {
             contentType(ContentType.Application.Json)
+            parameter("login", oldLogin)
             setBody(user)
         }
 
