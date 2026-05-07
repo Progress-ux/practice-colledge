@@ -37,10 +37,9 @@ class Client {
             parameter("password", password)
         }
 
-    suspend fun insert(login: String, password: String) =
+    suspend fun insert(login: String) =
         client.put("insert") {
             parameter("login", login)
-            parameter("password", password)
         }
 
     suspend fun update(user: User) =
