@@ -13,18 +13,13 @@ CREATE TABLE user(
 INSERT INTO user VALUES ("admin", "admin", date(), NULL, 1, 0);
 INSERT INTO user VALUES ("user", "user", date(), NULL, 0, 0);
 
-getUserByLogin:
-SELECT * FROM user WHERE login=:login;
-
 login {
-SELECT * FROM user
-    WHERE login = :login AND password = :password;
+UPDATE user SET token=:token, last=date(), count=0
+    WHERE login=:login AND password=:password AND last>date('now', '-1 month');
+UPDATE user SET token=NULL
+    WHERE login=:login AND password=:password AND last<=date('now', '-1 month');
+SELECT * FROM user WHERE login=:login;
 }
-
-successLogin:
-UPDATE user SET token = :token, count = 0, last = date()
-    WHERE login = :login;
-
 
 count:
 UPDATE user SET count = count + 1
