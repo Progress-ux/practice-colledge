@@ -42,12 +42,12 @@ fun server() = embeddedServer(Netty, port = 80, host = "0.0.0.0", module = {
             val login = params["login"]
             val password = params["password"]
 
-            if (login == null || password == null) {
-                return@post call.respond(HttpStatusCode.BadRequest)
-            }
-
             runCatching {
-                val user = database.userQueries.login(login, password).executeAsOne()
+                val user = database.userQueries.login(
+                    UUID.randomUUID().toString(),
+                    login!!,
+                    password!!
+                ).executeAsOne()
 
                 if (user.password != password) {
                     if (user.count < 2) {
@@ -59,10 +59,7 @@ fun server() = embeddedServer(Netty, port = 80, host = "0.0.0.0", module = {
                     }
                 }
                 else if (user.token == null) {
-                    val newToken = UUID.randomUUID().toString()
-                    database.userQueries.successLogin(newToken, login)
-                    val updatedUser = database.userQueries.getUserByLogin(login).executeAsOne()
-                    call.respond(updatedUser)
+                    call.respond(HttpStatusCode.Unauthorized)
                 }
                 else
                     call.respond(user)
@@ -74,14 +71,11 @@ fun server() = embeddedServer(Netty, port = 80, host = "0.0.0.0", module = {
         put("insert") {
             val param = call.parameters
             val login = param.getOrFail("login")
-            val password = param.getOrFail("password")
 
             runCatching {
-                database.userQueries.insert(login, password)
-                println("Insert success for $login, $password")
-                call.respond(HttpStatusCode.Created)
+                database.userQueries.insert(login, login)
+                call.respond(HttpStatusCode.OK)
             }.onFailure {
-                println("Insert failed for $login: ${it.message}")
                 call.respond(HttpStatusCode.BadRequest)
             }
         }
@@ -91,39 +85,31 @@ fun server() = embeddedServer(Netty, port = 80, host = "0.0.0.0", module = {
             val oldLogin = param.getOrFail("login")
             val user = call.receive<User>()
 
-            runCatching {
-                val userUpdate = database.userQueries.update(
-                    user.login,
-                    user.password,
-                    user.admin,
-                    oldLogin
-                )
+            val userUpdate = database.userQueries.update(
+                user.login,
+                user.password,
+                user.admin,
+                oldLogin
+            )
 
-                if (userUpdate.value == 1L) {
-                    call.respond(HttpStatusCode.OK)
-                }
-                else {
-                    call.respond(HttpStatusCode.NotFound)
-                }
-            }.onFailure {
-                call.respond(HttpStatusCode.BadRequest)
+            if (userUpdate.value == 1L) {
+                call.respond(HttpStatusCode.OK)
+            }
+            else {
+                call.respond(HttpStatusCode.NotFound)
             }
         }
 
         delete("delete") {
             val param = call.parameters
             val login = param.getOrFail("login")
-            runCatching {
-                val userDelete = database.userQueries.delete(login)
+            val userDelete = database.userQueries.delete(login)
 
-                if (userDelete.value == 1L) {
-                    call.respond(HttpStatusCode.OK)
-                }
-                else {
-                    call.respond(HttpStatusCode.NotFound)
-                }
-            }.onFailure {
-                call.respond(HttpStatusCode.BadRequest)
+            if (userDelete.value == 1L) {
+                call.respond(HttpStatusCode.OK)
+            }
+            else {
+                call.respond(HttpStatusCode.NotFound)
             }
         }
     }
