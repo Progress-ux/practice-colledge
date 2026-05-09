@@ -127,18 +127,18 @@ fun UserRow(
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            Icon(
-                if (isHeader) Icons.Default.Edit else Icons.Default.Check,
-                null
-            )
+            if (isHeader) Icon(Icons.Default.Edit, null)
+            else IconButton(onClick = {  }) {
+                Icon(Icons.Default.Check, null)
+            }
         }
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            Icon(
-                if (isHeader) Icons.Default.Delete else Icons.Default.Close,
-                null
-            )
+            if (isHeader) Icon(Icons.Default.Delete, null)
+            else IconButton(onClick = {  }) {
+                Icon(Icons.Default.Close, null)
+            }
         }
     }
 }
