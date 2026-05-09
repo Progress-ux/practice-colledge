@@ -64,41 +64,65 @@ fun Editor(client: Client) {
         item {
             UserRow(
                 login = "Логин",
+                onLoginChange = {},
                 password = "Пароль",
-                isHeader = true
+                onPasswordChange = {},
+                isHeader = true,
+                onAdminChange = {}
             )
             HorizontalDivider()
         }
         items(users, { it.login }) { user ->
+            var login by remember(user) { mutableStateOf(user.login) }
+            var password by remember(user) { mutableStateOf(user.password) }
+            var admin by remember(user) { mutableStateOf(user.admin == 1L) }
+            val block = remember(user) {
+                LocalDate.parse(user.last) <= LocalDate.now().minusMonths(1)
+            }
             UserRow(
-                login = user.login,
-                password = user.password,
-                isAdmin = user.admin == 1L
+                login = login,
+                onLoginChange = {
+                    login = it
+                },
+                password = password,
+                onPasswordChange = {
+                    password = it
+                },
+                isAdmin = admin,
+                onAdminChange = {
+                    admin = it
+                },
+                block = block
             )
             HorizontalDivider()
         }
     }
 }
+
 @Composable
 fun UserRow(
     login: String,
+    onLoginChange: (String) -> Unit,
     password: String,
+    onPasswordChange: (String) -> Unit,
     isAdmin: Boolean = false,
+    onAdminChange: (Boolean) -> Unit,
+    block: Boolean = false,
     isHeader: Boolean = false
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(login, modifier = Modifier.weight(3f).padding(8.dp))
+        BasicTextField(login, onValueChange = onLoginChange, modifier = Modifier.weight(3f).padding(8.dp))
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
-        Text(password, modifier = Modifier.weight(3f).padding(8.dp))
+        BasicTextField(password, onValueChange = onPasswordChange, modifier = Modifier.weight(3f).padding(8.dp))
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             if (isHeader) Icon(Icons.Default.Settings, null)
-            else Checkbox(checked = isAdmin, onCheckedChange = {})
+            else Checkbox(checked = isAdmin, onCheckedChange = onAdminChange)
         }
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
