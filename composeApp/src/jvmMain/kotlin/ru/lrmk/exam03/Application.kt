@@ -78,7 +78,12 @@ fun Application() {
                 Text("Войти")
             }
         } else {
-            if (user?.admin == 1L) Editor(client)
+            Text("Вы успешно авторизовались", fontSize = 24.sp)
+
+            if (user?.admin == 1L) {
+                Text("Редактор пользователей", fontSize = 16.sp)
+                Editor(client)
+            }
             else {
                 var oldPassword: String by remember { mutableStateOf("") }
                 var newPassword: String by remember { mutableStateOf("") }
@@ -86,7 +91,6 @@ fun Application() {
 
                 var isPasswordVisible: Boolean by remember { mutableStateOf(false) }
 
-                Text("Вы успешно авторизовались", fontSize = 24.sp)
                 Text("Пожалуйста, поменяйте пароль:", fontSize = 16.sp)
 
                 PasswordField(
