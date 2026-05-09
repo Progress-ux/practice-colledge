@@ -49,7 +49,9 @@ import androidx.compose.ui.unit.dp
 import io.ktor.websocket.Frame
 import kotlinx.coroutines.launch
 import ru.lrmk.exam03.database.User
+import sun.security.jgss.GSSUtil.login
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun Editor(client: Client) {
@@ -65,13 +67,11 @@ fun Editor(client: Client) {
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (error.isNotEmpty()) {
-            item {
+        item {
+            if (error.isNotEmpty()) {
                 Text(error, color = MaterialTheme.colorScheme.error)
             }
-        }
-        if (success.isNotEmpty()) {
-            item {
+            if (success.isNotEmpty()) {
                 Text(success, color = Color.Green)
             }
         }
@@ -154,6 +154,51 @@ fun Editor(client: Client) {
             HorizontalDivider()
         }
     }
+    var newLoginUser by remember { mutableStateOf("") }
+    OutlinedTextField(
+        value = newLoginUser,
+        onValueChange = {newLoginUser = it},
+        modifier = Modifier.padding(16.dp),
+        label = { Text("Новый пользователь") },
+        trailingIcon = {
+            IconButton(onClick = {
+                success = ""
+                error = ""
+
+                if (newLoginUser.isEmpty()) {
+                    error = "Введите логин для добавления"
+                    return@IconButton
+                }
+
+                if (users.any { it.login == newLoginUser }) {
+                    error = "Такой логин уже существует"
+                    return@IconButton
+                }
+
+                scope.launch {
+                    val statusInsert = client.insert(newLoginUser)
+                    when (statusInsert.status.value) {
+                        200 -> {
+                            val newUser = User(
+                                newLoginUser,
+                                newLoginUser,
+                                LocalDate.now().toString(),
+                                null,
+                                0L,
+                                0L
+                            )
+                            users.add(newUser)
+                            newLoginUser = ""
+                            success = "Пользователь успешно добавлен"
+                        }
+                        else -> error = "Не удалось добавить пользователя"
+                    }
+                }
+            }) {
+                Icon(Icons.Filled.AddCircle, null)
+            }
+        }
+    )
 }
 
 @Composable
