@@ -129,7 +129,7 @@ fun Editor(client: Client) {
                         when (statusEdit.status.value) {
                             200 -> {
                                 users.replaceAll { if (it.login == user.login) newUser else it }
-                                success = "Successfully updated"
+                                success = "Профиль успешно обновлен"
                             }
 
                             else -> error = "Не удалось отредактировать запись"
@@ -144,7 +144,7 @@ fun Editor(client: Client) {
                         when (statusDelete.status.value) {
                             200 -> {
                                 users.remove(user)
-                                success = "Successfully deleted"
+                                success = "Профиль успешно удален"
                             }
                             else -> error = "Не удалось запись"
                         }
