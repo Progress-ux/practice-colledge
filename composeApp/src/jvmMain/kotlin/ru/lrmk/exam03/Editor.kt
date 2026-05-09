@@ -68,7 +68,9 @@ fun Editor(client: Client) {
                 password = "Пароль",
                 onPasswordChange = {},
                 isHeader = true,
-                onAdminChange = {}
+                onAdminChange = {},
+                edit = {},
+                delete = {}
             )
             HorizontalDivider()
         }
@@ -92,7 +94,13 @@ fun Editor(client: Client) {
                 onAdminChange = {
                     admin = it
                 },
-                block = block
+                block = block,
+                edit = {
+
+                },
+                delete = {
+
+                }
             )
             HorizontalDivider()
         }
@@ -107,11 +115,16 @@ fun UserRow(
     onPasswordChange: (String) -> Unit,
     isAdmin: Boolean = false,
     onAdminChange: (Boolean) -> Unit,
+    edit: () -> Unit,
+    delete: () -> Unit,
     block: Boolean = false,
     isHeader: Boolean = false
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .background(if (block) MaterialTheme.colorScheme.tertiaryContainer else Color.Transparent),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BasicTextField(login, onValueChange = onLoginChange, modifier = Modifier.weight(3f).padding(8.dp))
@@ -121,24 +134,36 @@ fun UserRow(
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            if (isHeader) Icon(Icons.Default.Settings, null)
-            else Checkbox(checked = isAdmin, onCheckedChange = onAdminChange)
+            if (isHeader)
+                Icon(Icons.Default.Settings, null)
+            else
+                Checkbox(checked = isAdmin, onCheckedChange = onAdminChange)
         }
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            if (isHeader) Icon(Icons.Default.Edit, null)
-            else IconButton(onClick = {  }) {
-                Icon(Icons.Default.Check, null)
-            }
+            if (isHeader)
+                Icon(Icons.Default.Edit, null)
+            else
+                IconButton(onClick = edit) {
+                    Icon(
+                        Icons.Default.Check,
+                        null,
+                    )
+                }
         }
         VerticalDivider(Modifier.fillMaxHeight().width(1.dp))
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            if (isHeader) Icon(Icons.Default.Delete, null)
-            else IconButton(onClick = {  }) {
-                Icon(Icons.Default.Close, null)
-            }
+            if (isHeader)
+                Icon(Icons.Default.Delete, null)
+            else
+                IconButton(onClick = delete) {
+                    Icon(
+                        Icons.Default.Close,
+                        null,
+                    )
+                }
         }
     }
 }
