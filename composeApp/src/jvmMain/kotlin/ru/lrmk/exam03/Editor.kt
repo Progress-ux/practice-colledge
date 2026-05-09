@@ -46,21 +46,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.ktor.websocket.Frame
 import kotlinx.coroutines.launch
 import ru.lrmk.exam03.database.User
 import java.time.LocalDate
 
 @Composable
 fun Editor(client: Client) {
-    // В отдельную функцию вынесите администраторскую таблицу для редактирования пользователей
     val users by produceState(mutableListOf()) {
         value = client.users().toMutableStateList()
     }
+    val scope = rememberCoroutineScope()
+
+    var success: String by remember { mutableStateOf("") }
+    var error: String by remember { mutableStateOf("") }
 
     LazyColumn(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (error.isNotEmpty()) {
+            item {
+                Text(error, color = MaterialTheme.colorScheme.error)
+            }
+        }
+        if (success.isNotEmpty()) {
+            item {
+                Text(success, color = Color.Green)
+            }
+        }
         item {
             UserRow(
                 login = "Логин",
@@ -96,10 +110,45 @@ fun Editor(client: Client) {
                 },
                 block = block,
                 edit = {
+                    success = ""
+                    error = ""
+                    if (user.login != login) {
+                        if (users.any { it.login == login }) {
+                            error = "Такой логин уже существует"
+                            return@UserRow
+                        }
+                    }
+                    val newUser = user.copy(
+                        login = login,
+                        password = password,
+                        admin = if (admin) 1 else 0,
+                        last = LocalDate.now().toString()
+                    )
+                    scope.launch {
+                        val statusEdit = client.update(newUser, user.login)
+                        when (statusEdit.status.value) {
+                            200 -> {
+                                users.replaceAll { if (it.login == user.login) newUser else it }
+                                success = "Successfully updated"
+                            }
 
+                            else -> error = "Не удалось отредактировать запись"
+                        }
+                    }
                 },
                 delete = {
-
+                    success = ""
+                    error = ""
+                    scope.launch {
+                        val statusDelete = client.delete(user.login)
+                        when (statusDelete.status.value) {
+                            200 -> {
+                                users.remove(user)
+                                success = "Successfully deleted"
+                            }
+                            else -> error = "Не удалось запись"
+                        }
+                    }
                 }
             )
             HorizontalDivider()
