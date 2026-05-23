@@ -83,80 +83,80 @@ fun Application() {
             if (user?.admin == 1L) {
                 Text("Редактор пользователей", fontSize = 16.sp)
                 Editor(client)
+                return
             }
-            else {
-                var oldPassword: String by remember { mutableStateOf("") }
-                var newPassword: String by remember { mutableStateOf("") }
-                var testPassword: String by remember { mutableStateOf("") }
 
-                var isPasswordVisible: Boolean by remember { mutableStateOf(false) }
+            var oldPassword: String by remember { mutableStateOf("") }
+            var newPassword: String by remember { mutableStateOf("") }
+            var testPassword: String by remember { mutableStateOf("") }
 
-                Text("Пожалуйста, поменяйте пароль:", fontSize = 16.sp)
+            var isPasswordVisible: Boolean by remember { mutableStateOf(false) }
 
-                PasswordField(
-                    value = oldPassword,
-                    onValueChange = { oldPassword = it },
-                    label = "Старый пароль",
-                    isPasswordVisible = isPasswordVisible,
-                    onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
-                )
-                PasswordField(
-                    value = newPassword,
-                    onValueChange = { newPassword = it },
-                    label = "Новый пароль",
-                    isPasswordVisible = isPasswordVisible,
-                    onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
-                )
-                PasswordField(
-                    value = testPassword,
-                    onValueChange = { testPassword = it },
-                    label = "Новый пароль (еще раз)",
-                    isPasswordVisible = isPasswordVisible,
-                    onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
-                )
-                if (error.isNotBlank()) {
-                    Text(error, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
-                }
-                if (success.isNotBlank()) {
-                    Text(success, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
-                }
-                Button(onClick = {
-                    val login = user?.login ?: ""
-                    val savedPassword = user?.password ?: ""
+            Text("Пожалуйста, поменяйте пароль:", fontSize = 16.sp)
 
-                    when {
-                        // Проверка на пустые поля
-                        oldPassword.isEmpty() || newPassword.isEmpty() || testPassword.isEmpty() ->
-                            error = "Пожалуйста, заполните все поля"
+            PasswordField(
+                value = oldPassword,
+                onValueChange = { oldPassword = it },
+                label = "Старый пароль",
+                isPasswordVisible = isPasswordVisible,
+                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+            )
+            PasswordField(
+                value = newPassword,
+                onValueChange = { newPassword = it },
+                label = "Новый пароль",
+                isPasswordVisible = isPasswordVisible,
+                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+            )
+            PasswordField(
+                value = testPassword,
+                onValueChange = { testPassword = it },
+                label = "Новый пароль (еще раз)",
+                isPasswordVisible = isPasswordVisible,
+                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+            )
+            if (error.isNotBlank()) {
+                Text(error, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+            }
+            if (success.isNotBlank()) {
+                Text(success, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
+            }
+            Button(onClick = {
+                val login = user?.login ?: ""
+                val savedPassword = user?.password ?: ""
 
-                        // Проверка, что набранный пароль соответствует записи в user
-                        oldPassword != savedPassword ->
-                            error = "Неправильный пароль"
+                when {
+                    // Проверка на пустые поля
+                    oldPassword.isEmpty() || newPassword.isEmpty() || testPassword.isEmpty() ->
+                        error = "Пожалуйста, заполните все поля"
 
-                        // Проверка, что новый пароль не содержит в себе логин
-                        newPassword.contains(login, ignoreCase = true) ->
-                            error = "Пароль не должен совпадать с логином"
+                    // Проверка, что набранный пароль соответствует записи в user
+                    oldPassword != savedPassword ->
+                        error = "Неправильный пароль"
 
-                        // Проверка, что новые пароли совпадают
-                        newPassword != testPassword ->
-                            error = "Пароли не совпадают"
+                    // Проверка, что новый пароль не содержит в себе логин
+                    newPassword.contains(login, ignoreCase = true) ->
+                        error = "Пароль не должен совпадать с логином"
 
-                        // Смена пароля
-                        else -> {
-                            error = ""
-                            val newUser = user!!.copy(password = newPassword)
-                            scope.launch {
-                                val request = client.update(newUser, login)
-                                when (request.status.value) {
-                                    200 -> success = "Пароль успешно изменен"
-                                    else -> error = request.status.toString()
-                                }
+                    // Проверка, что новые пароли совпадают
+                    newPassword != testPassword ->
+                        error = "Пароли не совпадают"
+
+                    // Смена пароля
+                    else -> {
+                        error = ""
+                        val newUser = user!!.copy(password = newPassword)
+                        scope.launch {
+                            val request = client.update(newUser, login)
+                            when (request.status.value) {
+                                200 -> success = "Пароль успешно изменен"
+                                else -> error = request.status.toString()
                             }
                         }
                     }
-                }) {
-                    Text("Сменить пароль")
                 }
+            }) {
+                Text("Сменить пароль")
             }
         }
     }
