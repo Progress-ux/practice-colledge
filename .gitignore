@@ -2,15 +2,15 @@
 .kotlin
 .gradle
 **/build/
+build/
 xcuserdata
 !src/**/build/
 local.properties
-.idea
 .DS_Store
 captures
 .externalNativeBuild
 .cxx
-data.s3db
+*data.s3db
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
@@ -18,3 +18,5 @@ data.s3db
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+.idea/
+.vscode/
