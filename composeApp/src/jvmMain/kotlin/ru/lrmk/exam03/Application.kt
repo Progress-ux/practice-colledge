@@ -50,12 +50,11 @@ fun Application() {
                 onValueChange = { login = it },
                 label = { Text("Логин") },
             )
-            PasswordField(
+            OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = "Пароль",
-                isPasswordVisible = isPasswordVisible,
-                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+                visualTransformation = PasswordVisualTransformation()
             )
 
             if (error.isNotBlank()) {
@@ -94,26 +93,23 @@ fun Application() {
 
             Text("Пожалуйста, поменяйте пароль:", fontSize = 16.sp)
 
-            PasswordField(
+            OutlinedTextField(
                 value = oldPassword,
                 onValueChange = { oldPassword = it },
                 label = "Старый пароль",
-                isPasswordVisible = isPasswordVisible,
-                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+                visualTransformation = PasswordVisualTransformation()
             )
-            PasswordField(
+            OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
                 label = "Новый пароль",
-                isPasswordVisible = isPasswordVisible,
-                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+                visualTransformation = PasswordVisualTransformation()
             )
-            PasswordField(
+            OutlinedTextField(
                 value = testPassword,
                 onValueChange = { testPassword = it },
                 label = "Новый пароль (еще раз)",
-                isPasswordVisible = isPasswordVisible,
-                onPasswordVisible = { isPasswordVisible = !isPasswordVisible }
+                visualTransformation = PasswordVisualTransformation()
             )
             if (error.isNotBlank()) {
                 Text(error, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
@@ -160,27 +156,4 @@ fun Application() {
             }
         }
     }
-}
-
-@Composable
-fun PasswordField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    isPasswordVisible: Boolean,
-    onPasswordVisible: () -> Unit,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        visualTransformation = if (!isPasswordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-        trailingIcon = {
-            Icon(
-                imageVector = if (!isPasswordVisible) Icons.Default.Lock else Icons.Default.Check,
-                contentDescription = "Password",
-                modifier = Modifier.clickable { onPasswordVisible() }
-            )
-        },
-    )
 }
