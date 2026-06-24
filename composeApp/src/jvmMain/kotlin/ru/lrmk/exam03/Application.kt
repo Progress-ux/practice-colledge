@@ -42,8 +42,6 @@ fun Application() {
         var login: String by remember { mutableStateOf("") }
         var password: String by remember { mutableStateOf("") }
 
-        var isPasswordVisible: Boolean by remember { mutableStateOf(false) }
-
         if (user == null) {
             OutlinedTextField(
                 value = login,
@@ -53,7 +51,7 @@ fun Application() {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = "Пароль",
+                label = { Text("Пароль") },
                 visualTransformation = PasswordVisualTransformation()
             )
 
@@ -96,19 +94,19 @@ fun Application() {
             OutlinedTextField(
                 value = oldPassword,
                 onValueChange = { oldPassword = it },
-                label = "Старый пароль",
+                label = { Text("Старый пароль") },
                 visualTransformation = PasswordVisualTransformation()
             )
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                label = "Новый пароль",
+                label = { Text("Новый пароль") },
                 visualTransformation = PasswordVisualTransformation()
             )
             OutlinedTextField(
                 value = testPassword,
                 onValueChange = { testPassword = it },
-                label = "Новый пароль (еще раз)",
+                label = { Text("Новый пароль (еще раз)") },
                 visualTransformation = PasswordVisualTransformation()
             )
             if (error.isNotBlank()) {
